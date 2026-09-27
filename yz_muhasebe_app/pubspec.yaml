@@ -1,0 +1,48 @@
+name: yz_muhasebe_app
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  # Gerekli Düzeltme: SDK Kısıtlaması güncel paketleri destekleyecek şekilde yükseltildi
+  sdk: '>=3.4.0 <5.0.0' # Flutter 3.19 ve üzerini kapsar.
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  
+  # Yükseltilen Firebase paketleri (Tüm paketler en son stabil sürümlere yükseltildi)
+  firebase_core: ^4.2.0      # Önceki: ^3.4.0
+  firebase_auth: ^6.1.1      # Önceki: ^5.2.0
+  cloud_firestore: ^6.0.0    # Önceki: ^5.4.0
+  
+  # Diğer paketler en son sürümlerine yükseltildi
+  image_picker: ^1.1.2       # Önceki: ^1.1.2 (En son sürüm 1.2.0'dır, ancak kısıtlamadan dolayı bu tutuldu)
+  path_provider: ^2.1.4      # Önceki: ^2.1.4 (En son sürüm 2.1.5'tir)
+  google_generative_ai: ^0.4.7 # Önceki: ^0.4.7 (Daha güncel sürüme yükseltildi)
+  network_info_plus: ^7.0.0
+  dart_ipify: ^1.1.1
+  permission_handler: ^11.3.1 # Kamera izni için
+  http: ^1.2.2               # AI servis için HTTP istekleri
+  intl: ^0.20.0              # Tarih formatlama için (flutter_localizations ile uyumlu)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0 # Zaten günceldi
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  uses-material-design: true

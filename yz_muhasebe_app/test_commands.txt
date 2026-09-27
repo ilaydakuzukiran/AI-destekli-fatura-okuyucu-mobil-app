@@ -1,0 +1,13 @@
+# Uygulamayı cihazdan tamamen kaldırın
+adb uninstall com.example.yz_muhasebe_app
+
+# Flutter temizlik
+flutter clean
+
+# Paketleri yeniden yükle
+flutter pub get
+
+# Uygulamayı yeniden çalıştır
+flutter run
+
+# VEYA Android Studio'dan Run > Flutter Clean ve sonra Run

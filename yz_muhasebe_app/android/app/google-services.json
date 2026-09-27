@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "526415717285",
+    "project_id": "yz-muhasebe-app",
+    "storage_bucket": "yz-muhasebe-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:526415717285:android:9c9a2c291f58af91a07e4c",
+        "android_client_info": {
+          "package_name": "com.example.yz_muhasebe_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAT9NTUZ-zwwzz3UPrRGMagpErtm7Zuw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

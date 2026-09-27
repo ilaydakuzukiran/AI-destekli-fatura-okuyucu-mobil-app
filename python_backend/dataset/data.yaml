@@ -1,0 +1,15 @@
+# data.yaml içeriği
+
+# Resimlerin bulunduğu klasör yolları (data.yaml dosyasının olduğu yere göre)
+path: C:\Users\HP\Desktop\Bitirme Projesi\python_backend\dataset
+train: train/images
+val: val/images
+
+# Toplam sınıf sayısı (Senin 3 etiketin var: İşyeri, Tarih, Tutar)
+nc: 3
+
+# Sınıf isimleri (Sıralama CVAT'taki obj.names dosyasıyla AYNI olmalı!)
+names:
+  0: date
+  1: price
+  2: workplace
