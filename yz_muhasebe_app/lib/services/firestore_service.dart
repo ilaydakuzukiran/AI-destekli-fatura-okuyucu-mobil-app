@@ -3,18 +3,13 @@ import '../models/user_model.dart';
 import '../models/invoice_model.dart';
 import '../models/vendor_model.dart';
 
-/// Firestore veritabanı işlemleri için servis sınıfı
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // ==================== USER OPERATIONS ====================
-
-  /// Yeni kullanıcı oluştur
   Future<void> createUser(UserModel user) async {
     await _firestore.collection('users').doc(user.uid).set(user.toFirestore());
   }
 
-  /// Kullanıcı bilgilerini al
   Future<UserModel?> getUser(String uid) async {
     final doc = await _firestore.collection('users').doc(uid).get();
     if (doc.exists) {
@@ -23,13 +18,11 @@ class FirestoreService {
     return null;
   }
 
-  /// Kullanıcı bilgilerini güncelle
   Future<void> updateUser(String uid, Map<String, dynamic> data) async {
     data['updatedAt'] = Timestamp.now();
     await _firestore.collection('users').doc(uid).update(data);
   }
 
-  /// Kullanıcıyı sil (soft delete - isActive = false)
   Future<void> deactivateUser(String uid) async {
     await _firestore.collection('users').doc(uid).update({
       'isActive': false,
@@ -37,9 +30,6 @@ class FirestoreService {
     });
   }
 
-  // ==================== VENDOR OPERATIONS ====================
-
-  /// Yeni satıcı oluştur
   Future<String> createVendor(Vendor vendor) async {
     final docRef = await _firestore
         .collection('users')
@@ -49,7 +39,6 @@ class FirestoreService {
     return docRef.id;
   }
 
-  /// Satıcıyı al
   Future<Vendor?> getVendor(String userId, String vendorId) async {
     final doc = await _firestore
         .collection('users')
@@ -64,7 +53,6 @@ class FirestoreService {
     return null;
   }
 
-  /// Kullanıcının tüm satıcılarını al
   Stream<List<Vendor>> getVendors(String userId) {
     return _firestore
         .collection('users')
@@ -77,7 +65,6 @@ class FirestoreService {
             snapshot.docs.map((doc) => Vendor.fromFirestore(doc)).toList());
   }
 
-  /// Satıcı bilgilerini güncelle
   Future<void> updateVendor(
       String userId, String vendorId, Map<String, dynamic> data) async {
     data['updatedAt'] = Timestamp.now();
@@ -89,7 +76,6 @@ class FirestoreService {
         .update(data);
   }
 
-  /// Satıcı ara (isim ile)
   Future<List<Vendor>> searchVendors(String userId, String query) async {
     final snapshot = await _firestore
         .collection('users')
@@ -102,24 +88,19 @@ class FirestoreService {
     return snapshot.docs.map((doc) => Vendor.fromFirestore(doc)).toList();
   }
 
-  /// Satıcıyı ismine göre bul veya oluştur
   Future<Vendor> findOrCreateVendor(String userId, String vendorName) async {
-    // Önce arama yap
     final searchResults = await searchVendors(userId, vendorName);
 
     if (searchResults.isNotEmpty) {
-      // Varsa ilk sonucu döndür
       return searchResults.first;
     }
 
-    // Yoksa yeni oluştur
     final newVendor = Vendor.simple(userId: userId, name: vendorName);
     final vendorId = await createVendor(newVendor);
 
     return newVendor.copyWith(id: vendorId);
   }
 
-  /// Satıcıyı sil (soft delete)
   Future<void> deactivateVendor(String userId, String vendorId) async {
     await _firestore
         .collection('users')
@@ -132,9 +113,6 @@ class FirestoreService {
     });
   }
 
-  // ==================== INVOICE OPERATIONS ====================
-
-  /// Yeni fatura oluştur
   Future<String> createInvoice(Invoice invoice) async {
     final docRef = await _firestore
         .collection('users')
@@ -142,13 +120,11 @@ class FirestoreService {
         .collection('invoices')
         .add(invoice.toFirestore());
 
-    // Satıcı istatistiklerini güncelle
     await _updateVendorStats(invoice.userId, invoice.vendorId);
 
     return docRef.id;
   }
 
-  /// Faturayı al
   Future<Invoice?> getInvoice(String userId, String invoiceId) async {
     final doc = await _firestore
         .collection('users')
@@ -163,7 +139,6 @@ class FirestoreService {
     return null;
   }
 
-  /// Kullanıcının tüm faturalarını al (Stream)
   Stream<List<Invoice>> getInvoices(String userId) {
     return _firestore
         .collection('users')
@@ -175,7 +150,6 @@ class FirestoreService {
             snapshot.docs.map((doc) => Invoice.fromFirestore(doc)).toList());
   }
 
-  /// Tarih aralığına göre faturaları al
   Future<List<Invoice>> getInvoicesByDateRange(
       String userId, DateTime startDate, DateTime endDate) async {
     final startDateStr =
@@ -195,7 +169,6 @@ class FirestoreService {
     return snapshot.docs.map((doc) => Invoice.fromFirestore(doc)).toList();
   }
 
-  /// Satıcıya göre faturaları al
   Future<List<Invoice>> getInvoicesByVendor(
       String userId, String vendorId) async {
     final snapshot = await _firestore
@@ -209,7 +182,6 @@ class FirestoreService {
     return snapshot.docs.map((doc) => Invoice.fromFirestore(doc)).toList();
   }
 
-  /// Fatura bilgilerini güncelle
   Future<void> updateInvoice(
       String userId, String invoiceId, Map<String, dynamic> data) async {
     data['updatedAt'] = Timestamp.now();
@@ -221,12 +193,9 @@ class FirestoreService {
         .update(data);
   }
 
-  /// Faturayı sil
   Future<void> deleteInvoice(String userId, String invoiceId) async {
-    // Önce faturayı al
     final invoice = await getInvoice(userId, invoiceId);
 
-    // Faturayı sil
     await _firestore
         .collection('users')
         .doc(userId)
@@ -234,13 +203,11 @@ class FirestoreService {
         .doc(invoiceId)
         .delete();
 
-    // Satıcı istatistiklerini güncelle
     if (invoice != null) {
       await _updateVendorStats(userId, invoice.vendorId);
     }
   }
 
-  /// Satıcı istatistiklerini güncelle (fatura sayısı ve toplam tutar)
   Future<void> _updateVendorStats(String userId, String vendorId) async {
     final invoices = await getInvoicesByVendor(userId, vendorId);
 
@@ -256,9 +223,6 @@ class FirestoreService {
     });
   }
 
-  // ==================== STATISTICS ====================
-
-  /// Kullanıcının toplam fatura sayısını al
   Future<int> getTotalInvoiceCount(String userId) async {
     final snapshot = await _firestore
         .collection('users')
@@ -270,7 +234,6 @@ class FirestoreService {
     return snapshot.count ?? 0;
   }
 
-  /// Kullanıcının toplam fatura tutarını al
   Future<double> getTotalInvoiceAmount(String userId) async {
     final snapshot = await _firestore
         .collection('users')
@@ -287,7 +250,6 @@ class FirestoreService {
     );
   }
 
-  /// Aylık fatura istatistikleri
   Future<Map<String, dynamic>> getMonthlyStats(
       String userId, int year, int month) async {
     final startDate = DateTime(year, month, 1);
