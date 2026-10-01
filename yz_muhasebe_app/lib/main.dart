@@ -10,12 +10,9 @@ import 'package:yz_muhasebe_app/screens/auth_check_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
-  // Flutter widget'larının başlatıldığından emin olun (Firebase için zorunlu)
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase'i başlatma
   await Firebase.initializeApp(
-    // Platforma uygun ayarları kullan
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
@@ -32,24 +29,21 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // Türkçe dil desteği
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('tr', 'TR'), // Türkçe
-        Locale('en', 'US'), // İngilizce
+        Locale('tr', 'TR'), 
+        Locale('en', 'US'), 
       ],
       locale: const Locale('tr', 'TR'),
-      // Uygulamanın başlayacağı ana ekranı AuthCheckScreen olarak tanımlayın
       home: const AuthCheckScreen(),
     );
   }
 }
 
-// Yeni oluşturacağınız ekran
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -64,26 +58,21 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Uygulama açılır açılmaz kamera iznini kontrol et ve kamerayı aç
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPermissionAndOpenCamera();
     });
   }
 
-  // Kamera iznini kontrol et ve kamerayı aç
   Future<void> _checkPermissionAndOpenCamera() async {
     PermissionStatus status = await Permission.camera.status;
 
     if (!status.isGranted) {
-      // İzin verilmemişse, iste
       status = await Permission.camera.request();
     }
 
     if (status.isGranted) {
-      // İzin verildiyse, kamerayı aç
       _captureInvoice();
     } else if (status.isPermanentlyDenied) {
-      // Kalıcı olarak reddedildiyse, ayarlara yönlendir
       if (mounted) {
         showDialog(
           context: context,
@@ -109,7 +98,6 @@ class _MainScreenState extends State<MainScreen> {
         );
       }
     } else {
-      // İzin reddedildiyse, kullanıcıya bilgi ver
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -121,25 +109,19 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  // Firebase oturumunu kapatma fonksiyonu
   Future<void> _signOut() async {
     try {
       await _auth.signOut();
-      // Oturum kapatıldıktan sonra AuthCheckScreen otomatik olarak LoginScreen'i gösterecektir.
     } catch (e) {
-      // ignore: avoid_print
       print("Çıkış Yapma Hatası: $e");
     }
   }
 
-  // Kamera ile fotoğraf çekme fonksiyonu
   Future<void> _captureInvoice() async {
     try {
-      // Kamera kaynağını seçme
       final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
 
       if (photo != null) {
-        // Fotoğraf çekildiyse, ValidationScreen'a yönlendir
         if (mounted) {
           Navigator.push(
             context,
@@ -150,9 +132,7 @@ class _MainScreenState extends State<MainScreen> {
         }
       }
     } catch (e) {
-      // ignore: avoid_print
       print("Kamera Hatası: $e");
-      // Kullanıcıya hata mesajı gösterebiliriz
     }
   }
 
@@ -162,7 +142,6 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: const Text('YZ Muhasebe Sistemi'),
         actions: [
-          // Çıkış Yap butonu <--- YENİ EKLENTİ
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _signOut,
@@ -173,16 +152,13 @@ class _MainScreenState extends State<MainScreen> {
       body: const Center(
         child: Text('Yeni fatura taraması için butona basın.'),
       ),
-      // İki butonu da içerecek şekilde Column yapısı eklendi
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end, // Butonları sağa hizala
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // YENİ BUTON: Veri Aktarımı
           FloatingActionButton.extended(
             heroTag: 'export',
             onPressed: () {
-              // ExportScreen'a yönlendirme
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -193,7 +169,6 @@ class _MainScreenState extends State<MainScreen> {
           ),
           const SizedBox(height: 10),
 
-          // MEVCUT BUTON: Fatura Tara
           FloatingActionButton.extended(
             heroTag: 'capture',
             onPressed: _captureInvoice,
